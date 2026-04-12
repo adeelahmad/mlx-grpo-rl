@@ -1,0 +1,16 @@
+# Tool calling rollout template — think → <tool_call>JSON</tool_call>
+# Variables: prompt, answer, batch.progress
+
+# Phase 1: Thinking
+@generate max_tokens=512 stop=</think> temperature=0.6 tag=thinking as=thinking
+
+@if condition=thinking.stop_reason=="max_tokens"
+@inject text="</think>\n" masked=true
+@endif
+
+# Phase 2: Structured tool call
+@inject text="<tool_call>\n" masked=true tag=tool_prefix
+@generate max_tokens=256 stop=</tool_call> temperature=0.3 tag=tool_call as=tool_call
+
+# Ensure closing tag
+@inject text="</tool_call>" masked=true

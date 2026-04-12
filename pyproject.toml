@@ -1,0 +1,81 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mlx-grpo"
+version = "0.1.0"
+description = "Template-driven GRPO training framework for Apple Silicon"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+readme = "README.md"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: MacOS",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "pyyaml>=6.0",
+    "rich>=13.0",
+    "numpy>=1.24",
+]
+
+[project.optional-dependencies]
+mlx = ["mlx>=0.12", "mlx-lm>=0.12"]
+torch = ["torch>=2.0", "transformers>=4.38", "peft>=0.8", "safetensors", "bitsandbytes>=0.43"]
+vlm = ["transformers>=4.38", "Pillow>=9.0"]
+tui = ["textual>=0.40", "plotext>=5.2"]
+inspect = ["matplotlib>=3.7", "scipy>=1.11"]
+monitoring = ["wandb>=0.15"]
+dev = ["pytest>=8.0", "pytest-cov", "mypy>=1.8", "ruff>=0.4", "pre-commit>=3.6"]
+
+[project.urls]
+Repository = "https://github.com/adeelahmad/mlx-grpo-framework"
+
+[project.scripts]
+mlx-grpo = "mlx_grpo.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+exclude = ["src/reason_anchor.py"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# Hardware-dependent files (MLX/matplotlib) — suppress all mypy errors.
+module = [
+    "mlx_grpo.inspect.collector",
+    "mlx_grpo.inspect.circuit",
+    "mlx_grpo.inspect.lens",
+    "mlx_grpo.inspect.plots",
+    "mlx_grpo.inspect.runner",
+]
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+# numpy ndarray type params are impractical to annotate fully; suppress noise.
+module = [
+    "mlx_grpo.inspect.metrics",
+    "mlx_grpo.inspect.features",
+    "mlx_grpo.inspect.cka_probe",
+]
+disallow_any_generics = false
+warn_return_any = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --tb=short"

@@ -1,0 +1,92 @@
+name: Publish
+
+# Trigger: push a version tag → tests → build → GitHub release → PyPI
+# Usage:
+#   1. Bump version in pyproject.toml
+#   2. git tag v0.2.0 && git push origin v0.2.0
+#   That's it — everything below runs automatically.
+#
+# One-time setup (do this once, then never touch again):
+#   GitHub: Settings → Environments → New environment → name it "pypi"
+#   PyPI:   Account Settings → Publishing → Add Trusted Publisher:
+#             Owner:       adeelahmad
+#             Repository:  mlx-grpo-framework
+#             Workflow:    publish.yml
+#             Environment: pypi
+
+on:
+  push:
+    tags: ['v[0-9]*.[0-9]*.[0-9]*']
+
+permissions:
+  contents: write   # create GitHub releases + upload assets
+  id-token: write   # OIDC token for PyPI Trusted Publisher (no secret needed)
+
+jobs:
+  # ── Gate: tests must pass before any artifact is published ────────
+  test:
+    name: Tests (gate)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Run tests + enforce ≥90% coverage
+        run: |
+          python -m pytest tests/ \
+            --cov=mlx_grpo \
+            --cov-config=.coveragerc \
+            --cov-report=term-missing \
+            -q --tb=short
+        timeout-minutes: 15
+
+  # ── Build sdist + wheel ──────────────────────────────────────────
+  build:
+    name: Build
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install build twine
+      - run: python -m build
+      - run: twine check dist/*
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  # ── Create GitHub Release with dist assets ───────────────────────
+  github-release:
+    name: GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - name: Create release + attach dist files
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: dist/*
+
+  # ── Publish to PyPI via OIDC (no API token needed) ───────────────
+  publish-pypi:
+    name: Publish to PyPI
+    needs: github-release
+    runs-on: ubuntu-latest
+    environment: pypi
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1

@@ -1,0 +1,15 @@
+# General QnA rollout template — think → prose answer
+# Variables: prompt, answer, batch.scaffold_thinking_ratio
+
+# Light scaffolding for early training
+@scaffold ratio=batch.scaffold_thinking_ratio mode=prefix tag=scaffold
+
+# Phase 1: Thinking
+@generate max_tokens=768 stop=</think> temperature=0.7 tag=thinking as=thinking
+
+@if condition=thinking.stop_reason=="max_tokens"
+@inject text="</think>\n" masked=true
+@endif
+
+# Phase 2: Answer
+@generate max_tokens=256 temperature=0.5 tag=answer as=answer

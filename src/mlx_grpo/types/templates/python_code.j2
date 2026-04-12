@@ -1,0 +1,16 @@
+# Python code generation rollout template
+# Variables: prompt, answer, batch.progress
+
+# Phase 1: Thinking
+@generate max_tokens=768 stop=</think> temperature=0.7 tag=thinking as=thinking
+
+@if condition=thinking.stop_reason=="max_tokens"
+@inject text="</think>\n" masked=true
+@endif
+
+# Phase 2: Code block
+@inject text="\n```python\n" masked=true tag=code_prefix
+@generate max_tokens=512 stop=``` temperature=0.4 tag=code as=code
+
+# Ensure closing fence
+@inject text="\n```" masked=true

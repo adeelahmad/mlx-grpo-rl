@@ -1,0 +1,18 @@
+# MCQ rollout template — think → answer letter (A/B/C/D)
+# Variables: prompt, answer, batch.scaffold_thinking_ratio
+# Callbacks: slice_answer, coin_flip, is_valid_mcq
+
+# Curriculum scaffolding
+@scaffold ratio=batch.scaffold_thinking_ratio mode=prefix tag=scaffold
+
+# Phase 1: Thinking
+@generate max_tokens=768 stop=</think> temperature=0.7 tag=thinking as=thinking
+
+# Recovery if thinking didn't terminate
+@if condition=thinking.stop_reason=="max_tokens"
+@inject text="</think>\n" masked=true
+@endif
+
+# Phase 2: Answer extraction
+@inject text="\nThe answer is " masked=true
+@generate max_tokens=32 stop=\n temperature=0.3 tag=answer as=answer

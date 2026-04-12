@@ -1,0 +1,78 @@
+# Claude Code
+.claude/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Datasets (large JSONL files)
+data/
+
+# MLX-GRPO checkpoints and training artifacts
+checkpoints/
+**/checkpoints/
+*.safetensors
+recovery_state.json
+rollouts.jsonl
+stats.csv
+scaffold_accuracy.csv
+
+# WandB
+wandb/
+
+# Custom configs (user-specific training configs)
+configs/
+
+# Eval results
+evals/
+
+# Scratchpads and notes
+scratchpad/
+previosscratchpads/
+
+# Debug scripts
+debug_*.py
+
+# Archives
+*.zip
+
+# mypy / ruff cache
+.mypy_cache/
+.ruff_cache/
+
+# pytest
+.pytest_cache/
+
+# Coverage
+htmlcov/
+.coverage
+.coverage.*
+
+# Training artifacts
+adapters/
+report/
+
+# Report artifacts (ignore generated reports only)
+esc_grpo_report/
+old_docs/
+mlx-grpo-complete-docs.pdf

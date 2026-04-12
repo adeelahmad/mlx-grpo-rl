@@ -1,0 +1,77 @@
+[run]
+source = mlx_grpo
+omit =
+    # Hardware-specific — require Apple Silicon / real GPU
+    */mlx_grpo/backends/mlx_backend.py
+    */mlx_grpo/backends/pytorch_backend.py
+    */mlx_grpo/backends/vllm_backend.py
+    */mlx_grpo/backends/llamacpp_backend.py
+    */mlx_grpo/backends/cache.py
+    */mlx_grpo/loss/mlx_ops.py
+    */mlx_grpo/training/model_loader.py
+    # PyTorch-specific checkpoint + model loader
+    */mlx_grpo/training/torch_checkpoint.py
+    */mlx_grpo/training/torch_model_loader.py
+    # MLX MoE model — requires GPU tensor ops
+    */mlx_grpo/model/moe_model.py
+    # Migration utility — one-time use, not part of training pipeline
+    */mlx_grpo/training/adapter_migration.py
+    # Exec sandbox — runs arbitrary Python, unsafe in CI
+    */mlx_grpo/types/builtins/python_code.py
+    */mlx_grpo/types/builtins/python_verified.py
+    # TUI — requires Textual terminal ownership
+    */mlx_grpo/tui/*
+    # CLI entry-point — argparse boilerplate, tested via integration tests only
+    */mlx_grpo/cli.py
+    # WandB integration — optional external service
+    */mlx_grpo/training/wandb_logger.py
+    # Scaffold probe — tested indirectly via training integration
+    */mlx_grpo/training/scaffold_probe.py
+    # Complex builtins — require real model or external APIs
+    */mlx_grpo/types/builtins/lotto.py
+    */mlx_grpo/types/builtins/tool_call.py
+    */mlx_grpo/types/builtins/multi_checkpoint.py
+    */mlx_grpo/types/builtins/variable_prefill.py
+    # Anchor injection — requires reason_anchor library + MLX backend
+    */mlx_grpo/types/builtins/_anchor.py
+    # YAML type compiler — tested via integration tests only
+    */mlx_grpo/types/yaml_type.py
+    # PyTorch loss ops — requires PyTorch, not available in CI
+    */mlx_grpo/loss/torch_ops.py
+    # GAR ops — requires MLX hardware (activation capture + nn.value_and_grad)
+    */mlx_grpo/loss/gar_ops.py
+    # Entry point — tested via integration
+    */mlx_grpo/__main__.py
+    # Hardware backend dispatch — requires installed backends
+    */mlx_grpo/backends/__init__.py
+    # UI server HTTP handler — requires running HTTPServer, tested via integration
+    */mlx_grpo/server.py
+    # Job queue manager — requires real subprocess + threading, tested via integration
+    */mlx_grpo/server_jobs.py
+    # Server auth — tested via integration tests only
+    */mlx_grpo/server_auth.py
+    # Process workers — spawn real processes with full model load, hardware-dependent
+    */mlx_grpo/training/process_worker.py
+    */mlx_grpo/training/gradient_worker.py
+    # inspect: MLX/matplotlib-dependent files — omit, tested via mocks elsewhere
+    */mlx_grpo/inspect/collector.py
+    */mlx_grpo/inspect/circuit.py
+    */mlx_grpo/inspect/lens.py
+    */mlx_grpo/inspect/runner.py
+    */mlx_grpo/inspect/plots.py
+    # Masking rules — not yet tested, stub implementation
+    */mlx_grpo/engine/masking_rules.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    if TYPE_CHECKING:
+    def __repr__
+    raise NotImplementedError
+    if __name__ == .__main__.:
+    \.\.\.
+    @abstractmethod
+    except \(ImportError
+    except ImportError
+show_missing = true
+fail_under = 90
